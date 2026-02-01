@@ -1,0 +1,2131 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Diamond OA Engineering Journals in DOAJ</title>
+  <style>
+    @import url("https://fonts.googleapis.com/css2?family=Roboto+Flex:opsz,wght@8..144,300;8..144,400;8..144,500;8..144,600&display=swap");
+
+    :root {
+      --bg: #f7f8fb;
+      --ink: #111827;
+      --muted: #5b6472;
+      --card: #ffffff;
+      --stroke: #e3e7ee;
+      --accent: #1f4bd8;
+      --accent-2: #0b1f3a;
+      --accent-3: #9bb6ff;
+      --shadow: 0 12px 28px rgba(15, 23, 42, 0.08);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      color: var(--ink);
+      font-family: "Roboto Flex", "Helvetica Neue", Arial, sans-serif;
+      background: var(--bg);
+    }
+
+    .backdrop {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      background-image:
+        radial-gradient(820px 420px at 12% 8%, rgba(155, 182, 255, 0.18), transparent 60%),
+        radial-gradient(860px 520px at 92% 6%, rgba(31, 75, 216, 0.08), transparent 62%);
+      mix-blend-mode: multiply;
+      z-index: 0;
+    }
+
+    header {
+      position: relative;
+      z-index: 1;
+      padding: 28px 24px 8px;
+    }
+
+    header h1 {
+      margin: 0 0 6px;
+      font-size: clamp(24px, 3.5vw, 40px);
+      letter-spacing: 0.5px;
+    }
+
+    header p {
+      margin: 0;
+      color: var(--muted);
+    }
+
+    main {
+      position: relative;
+      z-index: 1;
+      padding: 16px 24px 48px;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(12, minmax(0, 1fr));
+      gap: 18px;
+    }
+
+    .panel {
+      background: var(--card);
+      border: 1px solid var(--stroke);
+      border-radius: 16px;
+      padding: 16px 18px;
+      box-shadow: var(--shadow);
+      animation: rise 0.6s ease both;
+      animation-delay: var(--delay, 0s);
+    }
+
+    .export-block {
+      margin-top: 12px;
+      padding: 12px;
+      border-radius: 12px;
+      background: #f8fafc;
+      border: 1px solid var(--stroke);
+    }
+
+    .panel.stats {
+      background: linear-gradient(135deg, #e7eefc 0%, #1f4bd8 100%);
+      border-color: #1f4bd8;
+      color: #ffffff;
+    }
+
+    .panel.stats .stat,
+    .panel.stats .summary-chart {
+      background: rgba(255, 255, 255, 0.95);
+      border-color: rgba(255, 255, 255, 0.75);
+      color: #0b1f3a;
+    }
+
+    .panel.stats .stat .label,
+    .panel.stats .summary-chart h3 {
+      color: #1b3160;
+    }
+
+    .panel.stats .status {
+      color: #e7eefc;
+    }
+
+    @keyframes rise {
+      from { transform: translateY(14px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .panel { animation: none; }
+    }
+
+    .controls { grid-column: span 12; }
+    .stats { grid-column: span 12; }
+    .chart { grid-column: span 12; }
+    .country-table { grid-column: span 12; }
+    .list { grid-column: span 12; }
+
+    @media (min-width: 900px) {
+      .controls { grid-column: span 4; }
+      .stats { grid-column: span 8; }
+      .list { grid-column: span 12; }
+    }
+
+    h2 {
+      margin: 0 0 10px;
+      font-size: 18px;
+      letter-spacing: 0.4px;
+    }
+
+    label {
+      display: block;
+      font-size: 13px;
+      color: var(--muted);
+      margin-top: 12px;
+    }
+
+    input, select, textarea, button {
+      font: inherit;
+    }
+
+    input, select, textarea {
+      width: 100%;
+      margin-top: 6px;
+      padding: 8px 10px;
+      border-radius: 10px;
+      border: 1px solid var(--stroke);
+      background: #fffdfc;
+      color: var(--ink);
+    }
+
+    textarea { resize: vertical; min-height: 70px; }
+
+    .row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .btns {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 14px;
+    }
+
+    button {
+      padding: 10px 14px;
+      border-radius: 12px;
+      border: 1px solid var(--accent-2);
+      background: var(--accent);
+      color: #ffffff;
+      font-weight: 600;
+      cursor: pointer;
+      transition: transform 0.12s ease, box-shadow 0.12s ease, background 0.12s ease;
+    }
+
+    button.secondary {
+      background: #eef2ff;
+      border-color: var(--stroke);
+      color: var(--accent-2);
+    }
+
+    button:hover {
+      box-shadow: 0 8px 16px rgba(37, 99, 235, 0.18);
+      transform: translateY(-1px);
+    }
+
+    button:active {
+      transform: translateY(1px);
+      box-shadow: none;
+      filter: brightness(0.95);
+    }
+
+    .status {
+      margin-top: 12px;
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    .stat-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .stat {
+      background: #fff9f8;
+      border: 1px solid var(--stroke);
+      padding: 12px;
+      border-radius: 12px;
+    }
+
+    .stat .label {
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .stat .value {
+      font-size: 20px;
+      font-weight: 700;
+      margin-top: 4px;
+    }
+
+    .chart-wrap {
+      margin-top: 8px;
+    }
+
+    .summary-charts {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+      margin-top: 12px;
+    }
+
+    .summary-chart {
+      background: #f8fafc;
+      border: 1px solid var(--stroke);
+      border-radius: 12px;
+      padding: 10px 12px;
+    }
+
+    .summary-chart h3 {
+      margin: 0 0 6px;
+      font-size: 14px;
+      color: var(--muted);
+      letter-spacing: 0.3px;
+    }
+
+    .summary-title {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .summary-icon {
+      width: 18px;
+      height: 18px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 6px;
+      background: #e0f2fe;
+      color: #1d4ed8;
+      flex: 0 0 18px;
+    }
+
+    .summary-icon svg {
+      width: 12px;
+      height: 12px;
+      fill: currentColor;
+      display: block;
+    }
+
+    @media (min-width: 900px) {
+      .summary-charts {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    .bar {
+      display: grid;
+      grid-template-columns: 140px 1fr 64px;
+      gap: 10px;
+      align-items: center;
+      margin: 8px 0;
+    }
+
+    .bar .name {
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    .bar .track {
+      height: 12px;
+      background: #e7ecf4;
+      border-radius: 999px;
+      overflow: hidden;
+    }
+
+    .bar .fill {
+      height: 100%;
+      background: linear-gradient(90deg, #1f4bd8, #7aa2ff);
+      border-radius: 999px;
+    }
+
+    .bar .fill.na {
+      background: linear-gradient(90deg, #ef4444, #b91c1c);
+    }
+
+    .bar .count {
+      text-align: right;
+      font-weight: 700;
+    }
+
+    .article-count.zero {
+      color: #b91c1c;
+      font-weight: 700;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    th, td {
+      text-align: left;
+      padding: 8px 6px;
+      border-bottom: 1px solid var(--stroke);
+      font-size: 13px;
+    }
+
+    th { color: var(--muted); font-weight: 600; }
+
+    .list-controls {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .table-scroll {
+      max-height: 340px;
+      overflow: auto;
+      border-radius: 12px;
+    }
+    .wordcloud {
+      border-radius: 12px;
+      border: 1px solid var(--stroke);
+      background: #fff;
+      padding: 12px 14px 16px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px 12px;
+      min-height: 120px;
+      align-content: flex-start;
+    }
+
+    .wordcloud span {
+      line-height: 1;
+      color: #1d3557;
+      font-weight: 600;
+      letter-spacing: -0.01em;
+    }
+
+    .wordcloud span.dim {
+      color: var(--muted);
+      font-weight: 500;
+    }
+
+
+    #countryTableScroll {
+      max-height: 520px;
+    }
+
+    .pagination {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      margin-top: 10px;
+      flex-wrap: wrap;
+    }
+
+    .pagination button {
+      padding: 6px 10px;
+      border-radius: 10px;
+      border: 1px solid var(--stroke);
+      background: #fff1ec;
+      color: var(--accent-2);
+      cursor: pointer;
+    }
+
+    .pagination button.active {
+      background: var(--accent);
+      border-color: var(--accent-2);
+      color: #ffffff;
+    }
+
+    .pagination .meta {
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: #f1f5f9;
+      border: 1px solid var(--stroke);
+      padding: 6px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .muted {
+      color: var(--muted);
+    }
+
+    footer {
+      text-align: center;
+      color: var(--muted);
+      font-size: 12px;
+      padding-bottom: 26px;
+    }
+  </style>
+</head>
+<body>
+  <div class="backdrop"></div>
+  <header>
+    <h1>Diamond OA Engineering Journals in DOAJ</h1>
+    <p>Dashboard report: No APC, last 2 years, engineering subject.</p>
+  </header>
+
+  <main class="grid">
+    <section class="panel controls" style="--delay: 0.05s;">
+      <h2 style="margin:16px 0 8px;">Country counts</h2>
+      <div class="table-scroll" id="countryTableScroll">
+        <table>
+          <thead>
+            <tr>
+              <th>Country</th>
+              <th>Journals</th>
+              <th>Share</th>
+            </tr>
+          </thead>
+          <tbody id="countryTable"></tbody>
+        </table>
+      </div>
+      <div class="pagination" id="countryPagination"></div>
+      <h2 style="margin:16px 0 8px;">Primary languages</h2>
+      <div class="table-scroll" id="languageTableScroll">
+        <table>
+          <thead>
+            <tr>
+              <th>Language</th>
+              <th>Journals</th>
+              <th>Share</th>
+            </tr>
+          </thead>
+          <tbody id="languageTable"></tbody>
+        </table>
+      </div>
+      <h2 style="margin:28px 0 8px;">Top 25 Keywords</h2>
+      <div class="wordcloud" id="keywordCloud"></div>
+      <div class="export-block">
+        <h3 style="margin:0 0 8px;">Data export</h3>
+        <div class="btns">
+          <button id="csvCountriesFull" class="secondary">Countries of publisher</button>
+          <button id="csvJournalsFull" class="secondary">Journal titles</button>
+          <button id="csvSubjects" class="secondary">Subjects</button>
+          <button id="csvSummary" class="secondary">Summary</button>
+        </div>
+      </div>
+      <div class="btns" style="margin-top: 14px;">
+        <button id="runBtn">Run report</button>
+        <button id="stopBtn" class="secondary">Stop</button>
+      </div>
+    </section>
+
+    <section class="panel stats" style="--delay: 0.1s;">
+      <h2>Summary</h2>
+      <div class="stat-grid">
+        <div class="stat">
+          <div class="label">Diamond engineering journals</div>
+          <div class="value" id="statTotal">0</div>
+        </div>
+        <div class="stat">
+          <div class="label">Countries</div>
+          <div class="value" id="statCountries">0</div>
+        </div>
+        <div class="stat">
+          <div class="label">Last updated range</div>
+          <div class="value" id="statRange">-</div>
+        </div>
+        <div class="stat">
+          <div class="label">Average publication time (weeks)</div>
+          <div class="value" id="statAvgPubWeeks">Not avaliable</div>
+        </div>
+      </div>
+
+      <div class="summary-charts">
+        <div class="summary-chart">
+          <h3 class="summary-title">
+            <span class="summary-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" role="img"><path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20Zm7.72 9h-3.21a15.8 15.8 0 0 0-1.07-4.07A8.03 8.03 0 0 1 19.72 11ZM12 4.06c.92 1.23 1.67 2.99 2.09 4.94H9.91c.42-1.95 1.17-3.71 2.09-4.94ZM4.28 13h3.21c.2 1.46.6 2.85 1.19 4.06A8.03 8.03 0 0 1 4.28 13Zm3.21-2H4.28a8.03 8.03 0 0 1 4.4-4.06A15.8 15.8 0 0 0 7.49 11Zm2.42 2h4.18c-.42 1.95-1.17 3.71-2.09 4.94-0.92-1.23-1.67-2.99-2.09-4.94Zm0-2c.42-1.95 1.17-3.71 2.09-4.94 0.92 1.23 1.67 2.99 2.09 4.94H9.91Zm5.41 6.06c.59-1.21.99-2.6 1.19-4.06h3.21a8.03 8.03 0 0 1-4.4 4.06Zm1.19-6.06c-.2-1.46-.6-2.85-1.19-4.06A8.03 8.03 0 0 1 19.72 11h-3.21Z"/></svg>
+            </span>
+            Top countries
+          </h3>
+          <div class="chart-wrap" id="countryChartSummary"></div>
+        </div>
+        <div class="summary-chart">
+          <h3 class="summary-title">
+            <span class="summary-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" role="img"><path d="M3 21h18v-2H3v2Zm2-4h14V3H5v14Zm2-2V5h10v10H7Zm2-8h6v2H9V7Zm0 3h6v2H9v-2Z"/></svg>
+            </span>
+            Top community publishers
+          </h3>
+          <div class="chart-wrap" id="publisherChartSummary"></div>
+        </div>
+        <div class="summary-chart">
+          <h3 class="summary-title">
+            <span class="summary-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" role="img"><path d="M12 3 1 9l11 6 9-4.91V17h2V9L12 3Zm0 9.82L5.24 9 12 5.18 18.76 9 12 12.82ZM5 13.5v3.35L12 21l7-4.15V13.5l-7 4.15-7-4.15Z"/></svg>
+            </span>
+            Top subjects
+          </h3>
+          <div class="chart-wrap" id="subjectChartSummary"></div>
+        </div>
+        <div class="summary-chart">
+          <h3 class="summary-title">
+            <span class="summary-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" role="img"><path d="M12 2 4 5v6c0 5 3.4 9.74 8 11 4.6-1.26 8-6 8-11V5l-8-3Zm0 18.06c-3.02-1.13-6-4.63-6-9.06V6.3l6-2.25 6 2.25V11c0 4.43-2.98 7.93-6 9.06ZM11 11h2v5h-2v-5Zm0-4h2v2h-2V7Z"/></svg>
+            </span>
+            Licenses
+          </h3>
+          <div class="chart-wrap" id="licenseChartSummary"></div>
+        </div>
+        <div class="summary-chart">
+          <h3 class="summary-title">
+            <span class="summary-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" role="img"><path d="M3 5h18v2H3V5Zm0 4h18v2H3V9Zm0 4h10v2H3v-2Zm0 4h10v2H3v-2Zm12.59 1.59L19 16.17l1.41 1.41-4.82 4.82-2.83-2.83 1.41-1.41 1.41 1.42Z"/></svg>
+            </span>
+            Review process
+          </h3>
+          <div class="chart-wrap" id="reviewChartSummary"></div>
+        </div>
+        <div class="summary-chart">
+          <h3 class="summary-title">
+            <span class="summary-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" role="img"><path d="M4 3h16v4H4V3Zm0 6h16v12H4V9Zm2 2v8h12v-8H6Zm2 2h8v4H8v-4Z"/></svg>
+            </span>
+            Preservation services
+          </h3>
+          <div class="chart-wrap" id="preservationChartSummary"></div>
+        </div>
+        <div class="summary-chart">
+          <h3 class="summary-title">
+            <span class="summary-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" role="img"><path d="M6 2h9l5 5v15H6V2Zm8 1.5V8h4.5L14 3.5ZM8 12h10v2H8v-2Zm0 4h10v2H8v-2Zm0-8h6v2H8V8Z"/></svg>
+            </span>
+            Deposit policy directory
+          </h3>
+          <div class="chart-wrap" id="depositChartSummary"></div>
+        </div>
+        <div class="summary-chart">
+          <h3 class="summary-title">
+            <span class="summary-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" role="img"><path d="M3.9 12a5 5 0 0 1 5-5h3v2h-3a3 3 0 1 0 0 6h3v2h-3a5 5 0 0 1-5-5Zm7.1 1h2v-2h-2v2Zm4-6h3a5 5 0 1 1 0 10h-3v-2h3a3 3 0 1 0 0-6h-3V7Z"/></svg>
+            </span>
+            Persistent article identifiers
+          </h3>
+          <div class="chart-wrap" id="pidChartSummary"></div>
+        </div>
+      </div>
+
+      <div class="status" id="status">Idle</div>
+      <div class="status" id="runMeta">No run yet.</div>
+    </section>
+
+    <section class="panel list" style="--delay: 0.25s;">
+      <div class="list-controls">
+        <h2 style="margin:0;">All journals</h2>
+        <span class="pill" id="listCount">0 items</span>
+        <input id="listFilter" list="listFilterOptions" placeholder="Filter by publisher country" />
+        <datalist id="listFilterOptions"></datalist>
+      </div>
+      <div class="table-scroll" style="max-height: none;">
+        <table>
+          <thead>
+            <tr>
+              <th>Title</th>
+              <th>Country</th>
+              <th>Subjects</th>
+              <th>Article records</th>
+              <th>Added on</th>
+              <th>Last updated</th>
+            </tr>
+          </thead>
+          <tbody id="journalTable"></tbody>
+        </table>
+      </div>
+      <div class="pagination" id="journalPagination"></div>
+    </section>
+  </main>
+
+  <footer>Generated in-browser from the DOAJ API.</footer>
+
+  <script>
+    (function() {
+      const $ = (id) => document.getElementById(id);
+
+      const state = {
+        running: false,
+        aborter: null,
+        all: [],
+        filtered: [],
+        countries: [],
+        summary: {
+          countries: [],
+          languages: [],
+          subjects: [],
+          licenses: [],
+          reviews: [],
+          preservations: [],
+          deposits: [],
+          pids: []
+        },
+        summaryMeta: {
+          total: 0,
+          countries: 0,
+          cutoff: "-",
+          range: "-",
+          avg_weeks: "Not avaliable"
+        },
+        countryPage: 1,
+        countryPageSize: 50,
+        page: 1,
+        pageSize: 100
+      };
+
+      const statusEl = $("status");
+      const runMetaEl = $("runMeta");
+      const config = {
+        endpoint: "https://doaj.org/api/v4/search/journals",
+        articleEndpoint: "https://doaj.org/api/v4/search/articles",
+        requestMode: "path",
+        query: "bibjson.apc.has_apc:false AND (bibjson.subject.term:Engineering OR index.classification:Engineering)",
+        subjectNeedle: "engineering",
+        yearsBack: 2,
+        dateField: "last_updated",
+        pageSize: 100,
+        maxPages: 200,
+        auth: {
+          mode: "apikey",
+          accessId: "ikhwan",
+          apiKey: "e2f5437d786f4e5d8a9139d915c2af66",
+          customHeaderName: "X-API-KEY",
+          customHeaderValue: "value"
+        }
+      };
+      const regionNames = (typeof Intl !== "undefined" && Intl.DisplayNames)
+        ? new Intl.DisplayNames(["en"], { type: "region" })
+        : null;
+      const languageNames = (typeof Intl !== "undefined" && Intl.DisplayNames)
+        ? new Intl.DisplayNames(["en"], { type: "language" })
+        : null;
+      const aliasToIso2 = {
+        UK: "GB",
+        EL: "GR",
+        UAE: "AE",
+        KSA: "SA",
+        XK: "XK"
+      };
+      const alpha3To2 = {
+        USA: "US",
+        CAN: "CA",
+        MEX: "MX",
+        GTM: "GT",
+        SLV: "SV",
+        HND: "HN",
+        NIC: "NI",
+        CRI: "CR",
+        PAN: "PA",
+        CUB: "CU",
+        HTI: "HT",
+        DOM: "DO",
+        JAM: "JM",
+        TTO: "TT",
+        BRB: "BB",
+        BHS: "BS",
+        GRD: "GD",
+        LCA: "LC",
+        VCT: "VC",
+        ATG: "AG",
+        KNA: "KN",
+        BLZ: "BZ",
+        BRA: "BR",
+        ARG: "AR",
+        CHL: "CL",
+        PER: "PE",
+        COL: "CO",
+        ECU: "EC",
+        BOL: "BO",
+        PRY: "PY",
+        URY: "UY",
+        VEN: "VE",
+        GUY: "GY",
+        SUR: "SR",
+        AND: "AD",
+        MCO: "MC",
+        SMR: "SM",
+        MLT: "MT",
+        CYP: "CY",
+        VAT: "VA",
+        ISL: "IS",
+        IRL: "IE",
+        GBR: "GB",
+        FRA: "FR",
+        DEU: "DE",
+        NLD: "NL",
+        BEL: "BE",
+        LUX: "LU",
+        CHE: "CH",
+        AUT: "AT",
+        ESP: "ES",
+        PRT: "PT",
+        ITA: "IT",
+        NOR: "NO",
+        SWE: "SE",
+        FIN: "FI",
+        DNK: "DK",
+        POL: "PL",
+        CZE: "CZ",
+        SVK: "SK",
+        HUN: "HU",
+        ROU: "RO",
+        BGR: "BG",
+        GRC: "GR",
+        SVN: "SI",
+        HRV: "HR",
+        BIH: "BA",
+        SRB: "RS",
+        MNE: "ME",
+        MKD: "MK",
+        UKR: "UA",
+        BLR: "BY",
+        MDA: "MD",
+        LTU: "LT",
+        LVA: "LV",
+        EST: "EE",
+        RUS: "RU",
+        ARM: "AM",
+        AZE: "AZ",
+        GEO: "GE",
+        TUR: "TR",
+        ISR: "IL",
+        SAU: "SA",
+        ARE: "AE",
+        QAT: "QA",
+        KWT: "KW",
+        BHR: "BH",
+        OMN: "OM",
+        JOR: "JO",
+        LBN: "LB",
+        SYR: "SY",
+        IRQ: "IQ",
+        IRN: "IR",
+        YEM: "YE",
+        AFG: "AF",
+        EGY: "EG",
+        DZA: "DZ",
+        MAR: "MA",
+        TUN: "TN",
+        LBY: "LY",
+        SDN: "SD",
+        SSD: "SS",
+        ETH: "ET",
+        ERI: "ER",
+        DJI: "DJ",
+        SOM: "SO",
+        KEN: "KE",
+        UGA: "UG",
+        RWA: "RW",
+        BDI: "BI",
+        TZA: "TZ",
+        COD: "CD",
+        COG: "CG",
+        GAB: "GA",
+        GNQ: "GQ",
+        CMR: "CM",
+        NGA: "NG",
+        GHA: "GH",
+        CIV: "CI",
+        SEN: "SN",
+        MLI: "ML",
+        NER: "NE",
+        BFA: "BF",
+        BEN: "BJ",
+        TGO: "TG",
+        GIN: "GN",
+        GNB: "GW",
+        SLE: "SL",
+        LBR: "LR",
+        CPV: "CV",
+        STP: "ST",
+        AGO: "AO",
+        ZMB: "ZM",
+        ZWE: "ZW",
+        MOZ: "MZ",
+        MWI: "MW",
+        NAM: "NA",
+        BWA: "BW",
+        ZAF: "ZA",
+        SWZ: "SZ",
+        LSO: "LS",
+        MDG: "MG",
+        MUS: "MU",
+        SYC: "SC",
+        COM: "KM",
+        IND: "IN",
+        PAK: "PK",
+        BGD: "BD",
+        NPL: "NP",
+        LKA: "LK",
+        BTN: "BT",
+        MDV: "MV",
+        CHN: "CN",
+        JPN: "JP",
+        KOR: "KR",
+        PRK: "KP",
+        MNG: "MN",
+        VNM: "VN",
+        THA: "TH",
+        MYS: "MY",
+        SGP: "SG",
+        PHL: "PH",
+        IDN: "ID",
+        BRN: "BN",
+        KHM: "KH",
+        LAO: "LA",
+        MMR: "MM",
+        TLS: "TL",
+        PNG: "PG",
+        AUS: "AU",
+        NZL: "NZ",
+        HKG: "HK",
+        MAC: "MO",
+        TWN: "TW",
+        XKX: "XK",
+        PSE: "PS"
+      };
+      const fallbackNames = {
+        XK: "Kosovo",
+        EU: "European Union",
+        UK: "United Kingdom"
+      };
+
+      function setStatus(msg) {
+        statusEl.textContent = msg;
+      }
+
+      function setRunMeta(msg) {
+        runMetaEl.textContent = msg;
+      }
+
+      function formatDate(d) {
+        if (!d || isNaN(d.getTime())) return "-";
+        const yyyy = d.getFullYear();
+        const mm = String(d.getMonth() + 1).padStart(2, "0");
+        const dd = String(d.getDate()).padStart(2, "0");
+        return yyyy + "-" + mm + "-" + dd;
+      }
+
+      function normalizeCountry(raw) {
+        if (!raw) return "Unknown";
+        const value = String(raw).trim();
+        if (!value) return "Unknown";
+        const upper = value.toUpperCase();
+        const isCode = /^[A-Z]{2,3}$/.test(upper);
+        if (isCode) {
+          const iso2 = aliasToIso2[upper] || alpha3To2[upper] || upper;
+          if (regionNames) {
+            const named = regionNames.of(iso2);
+            if (named && named !== iso2) return named;
+          }
+          if (fallbackNames[iso2]) return fallbackNames[iso2];
+          if (fallbackNames[upper]) return fallbackNames[upper];
+        }
+        return value;
+      }
+
+      function extractLicenses(bib, record) {
+        const raw = bib.license || record.license || record.licenses || [];
+        const list = Array.isArray(raw) ? raw : [raw];
+        const names = list
+          .map((item) => {
+            if (!item) return null;
+            if (typeof item === "string") return item.trim();
+            return (
+              item.type ||
+              item.title ||
+              item.display ||
+              item.label ||
+              item.url ||
+              item.license ||
+              ""
+            ).toString().trim();
+          })
+          .filter((val) => val);
+        return names.length ? Array.from(new Set(names)) : ["Unknown"];
+      }
+
+      function normalizeAvailability(value) {
+        const text = String(value || "").trim();
+        if (!text || text.toLowerCase() === "unknown") return "Not avaliable";
+        return text;
+      }
+      function normalizeLanguageValue(value) {
+        const raw = String(value || "").trim();
+        if (!raw) return "Not avaliable";
+        if (languageNames) {
+          const named = languageNames.of(raw);
+          if (named) return normalizeAvailability(named);
+        }
+        return normalizeAvailability(raw);
+      }
+
+      function extractLanguages(bib) {
+        if (!bib) return ["Not avaliable"];
+        const raw = bib.language || bib.lang || [];
+        let values = [];
+        if (Array.isArray(raw)) values = raw;
+        else if (typeof raw === "string") values = raw.split(/[;,]/);
+        const cleaned = values
+          .map((val) => normalizeLanguageValue(val))
+          .filter(Boolean);
+        const unique = Array.from(new Set(cleaned));
+        return unique.length ? unique : ["Not avaliable"];
+      }
+      function extractKeywords(bib) {
+        if (!bib) return [];
+        const raw = bib.keyword || bib.keywords || [];
+        let values = [];
+        if (Array.isArray(raw)) values = raw;
+        else if (typeof raw === "string") values = raw.split(/[;,]/);
+        return values
+          .map((val) => String(val || "").trim())
+          .filter((val) => val);
+      }
+
+      function normalizeKeyword(raw) {
+        const text = String(raw || "").trim();
+        if (!text) return null;
+        if (text.length <= 1) return null;
+        return text.replace(/\s+/g, " " );
+      }
+
+
+      function parseNumber(value) {
+        if (value == null) return null;
+        if (typeof value === "number" && Number.isFinite(value)) return value;
+        const text = String(value).trim();
+        if (!text) return null;
+        const match = text.match(/-?\d+(\.\d+)?/);
+        if (!match) return null;
+        const num = Number(match[0]);
+        return Number.isFinite(num) ? num : null;
+      }
+
+      function toTitleCase(text) {
+        return String(text || "").replace(/\b[a-z]/g, (c) => c.toUpperCase());
+      }
+
+      function normalizePublisherName(raw) {
+        const base = normalizeAvailability(raw);
+        if (base === "Not avaliable") {
+          return { key: "not avaliable", display: "Not avaliable" };
+        }
+        const rawName = String(base || "").replace(/\s+/g, " ").trim();
+        const loweredRaw = rawName.toLowerCase();
+        if (loweredRaw.includes("springeropen")) {
+          return { key: "springer", display: "Springer" };
+        }
+        let name = rawName;
+        if (!name) {
+          return { key: "not avaliable", display: "Not avaliable" };
+        }
+
+        const lower = name.toLowerCase();
+        const keywords = [
+          "universitas",
+          "university",
+          "institute",
+          "institut",
+          "college",
+          "polytechnic",
+          "politeknik",
+          "academy",
+          "akademi"
+        ];
+        let idx = -1;
+        keywords.forEach((k) => {
+          const pos = lower.indexOf(k);
+          if (pos >= 0 && (idx === -1 || pos < idx)) idx = pos;
+        });
+
+        if (idx >= 0) {
+          name = name.slice(idx).trim();
+          const separators = [",", " - ", " / ", " | "];
+          separators.forEach((sep) => {
+            if (name.includes(sep)) name = name.split(sep)[0].trim();
+          });
+        } else {
+          name = name.replace(
+            /^(department|faculty|school|centre|center|program|study program|jurusan|fakultas|departemen)(\s+of)?\s+/i,
+            ""
+          ).trim();
+        }
+
+        if (!name) {
+          name = base;
+        }
+
+        const generic = [
+          "university",
+          "university of technology",
+          "universitas",
+          "institute",
+          "institut",
+          "college",
+          "polytechnic",
+          "politeknik",
+          "academy",
+          "akademi",
+          "university press"
+        ];
+        const nameLower = name.toLowerCase().trim();
+        if (generic.includes(nameLower)) {
+          name = rawName;
+        }
+
+        const key = name.toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
+        let display = name;
+        if (display === display.toUpperCase()) {
+          display = toTitleCase(display.toLowerCase());
+        }
+
+        return { key: key || "not avaliable", display: display || "Not avaliable" };
+      }
+
+      function classifyPublisherType(name) {
+        const value = String(name || "").toLowerCase();
+        if (!value || value === "not avaliable") return "community";
+        const commercialNames = [
+          "springer",
+          "springer nature",
+          "elsevier",
+          "sciencedirect",
+          "wiley",
+          "taylor & francis",
+          "taylor and francis",
+          "sage",
+          "mdpi",
+          "hindawi",
+          "de gruyter",
+          "emerald",
+          "frontiers",
+          "sciencedirect",
+          "sciendo"
+        ];
+        if (commercialNames.some((n) => value.includes(n))) return "commercial";
+        const corpPattern = /(ltd|limited|inc|llc|gmbh|s\.a\.|srl|bv|plc|co\.|company|corp|corporation|communications)/i;
+        if (corpPattern.test(value)) return "commercial";
+        return "community";
+      }
+
+      function extractReviewProcess(bib) {
+        const raw = (bib.editorial && bib.editorial.review_process) || [];
+        const list = Array.isArray(raw) ? raw : [raw];
+        const values = list
+          .map((item) => String(item || "").trim())
+          .filter((val) => val);
+        return values.length ? Array.from(new Set(values)) : ["Unknown"];
+      }
+
+      function extractPreservationServices(bib) {
+        const preservation = bib.preservation || {};
+        const rawServices = preservation.service || [];
+        const rawLibraries = preservation.national_library || [];
+        const services = Array.isArray(rawServices) ? rawServices : [rawServices];
+        const libraries = Array.isArray(rawLibraries) ? rawLibraries : [rawLibraries];
+        const values = services
+          .concat(libraries)
+          .map((item) => normalizeAvailability(item))
+          .filter((val) => val);
+        return values.length ? Array.from(new Set(values)) : ["Not avaliable"];
+      }
+
+      function extractDepositPolicyServices(bib) {
+        const deposit = bib.deposit_policy || {};
+        const raw = deposit.service || [];
+        const list = Array.isArray(raw) ? raw : [raw];
+        const values = list
+          .map((item) => normalizeAvailability(item))
+          .filter((val) => val);
+        return values.length ? Array.from(new Set(values)) : ["Not avaliable"];
+      }
+
+      function extractPidTypes(bib) {
+        const scheme = bib.pid_scheme || {};
+        const raw = scheme.scheme || [];
+        const list = Array.isArray(raw) ? raw : [raw];
+        const values = list
+          .map((item) => normalizeAvailability(item))
+          .filter((val) => val);
+        return values.length ? Array.from(new Set(values)) : ["Not avaliable"];
+      }
+
+      function extractPublicationWeeks(bib, record) {
+        const editorial = bib.editorial || {};
+        const candidates = [
+          editorial.average_number_of_weeks_between_submission_and_publication,
+          editorial.average_weeks_between_submission_and_publication,
+          editorial.average_weeks_submission_to_publication,
+          editorial.weeks_between_submission_and_publication,
+          editorial.average_time_to_publication,
+          editorial.publication_time_weeks,
+          editorial.submission_to_publication,
+          bib.publication_time_weeks,
+          record.publication_time_weeks,
+          record.average_number_of_weeks_between_submission_and_publication
+        ];
+        for (let i = 0; i < candidates.length; i++) {
+          const val = parseNumber(candidates[i]);
+          if (Number.isFinite(val)) return val;
+        }
+        return null;
+      }
+
+      function buildHeaders() {
+        const mode = config.auth.mode;
+        const accessId = String(config.auth.accessId || "").trim();
+        const apiKey = String(config.auth.apiKey || "").trim();
+        const headers = { "Accept": "application/json" };
+
+        if (mode === "apikey") {
+          headers["Authorization"] = "ApiKey " + accessId + ":" + apiKey;
+        } else if (mode === "basic") {
+          const token = btoa(accessId + ":" + apiKey);
+          headers["Authorization"] = "Basic " + token;
+        } else if (mode === "bearer") {
+          headers["Authorization"] = "Bearer " + apiKey;
+        } else if (mode === "xapikey") {
+          headers["X-API-KEY"] = apiKey;
+        } else if (mode === "custom") {
+          const name = String(config.auth.customHeaderName || "").trim();
+          const value = String(config.auth.customHeaderValue || "").trim();
+          if (name && value) headers[name] = value;
+        }
+
+        return headers;
+      }
+
+      function buildRequest(page, nextUrl) {
+        const endpoint = String(config.endpoint || "").trim().replace(/\/+$/, "");
+        const query = String(config.query || "").trim();
+        const pageSize = parseInt(config.pageSize, 10) || 100;
+        const mode = config.requestMode;
+
+        if (nextUrl) {
+          return { url: nextUrl, method: "GET", body: null, pageSize };
+        }
+
+        if (mode === "path") {
+          const url = endpoint + "/" + encodeURIComponent(query) +
+            "?page=" + page + "&pageSize=" + pageSize;
+          return { url, method: "GET", body: null, pageSize };
+        }
+
+        if (mode === "query") {
+          const url = endpoint + "?q=" + encodeURIComponent(query) +
+            "&page=" + page + "&pageSize=" + pageSize;
+          return { url, method: "GET", body: null, pageSize };
+        }
+
+        const body = {
+          query: { query_string: { query: query, default_operator: "AND" } },
+          from: (page - 1) * pageSize,
+          size: pageSize
+        };
+
+        return { url: endpoint, method: "POST", body: JSON.stringify(body), pageSize };
+      }
+
+      function buildArticleRequest(query) {
+        const endpoint = String(config.articleEndpoint || "").trim().replace(/\/+$/, "");
+        const mode = config.requestMode;
+        const pageSize = 1;
+
+        if (mode === "path") {
+          const url = endpoint + "/" + encodeURIComponent(query) +
+            "?page=1&pageSize=" + pageSize;
+          return { url, method: "GET", body: null };
+        }
+
+        if (mode === "query") {
+          const url = endpoint + "?q=" + encodeURIComponent(query) +
+            "&page=1&pageSize=" + pageSize;
+          return { url, method: "GET", body: null };
+        }
+
+        const body = {
+          query: { query_string: { query: query, default_operator: "AND" } },
+          from: 0,
+          size: pageSize
+        };
+
+        return { url: endpoint, method: "POST", body: JSON.stringify(body) };
+      }
+
+      function buildArticleQuery(record) {
+        const issns = record.issn_list || [];
+        if (issns.length) {
+          const parts = issns.map((val) => `bibjson.identifier.id:\"${val}\"`);
+          return issns.length > 1 ? "(" + parts.join(" OR ") + ")" : parts[0];
+        }
+        const title = String(record.title || "").replace(/"/g, "\\\"");
+        return title ? `bibjson.journal.title:\"${title}\"` : "";
+      }
+
+
+      function extractResults(data) {
+        if (!data) return [];
+        if (Array.isArray(data.results)) return data.results;
+        if (Array.isArray(data.records)) return data.records;
+        if (Array.isArray(data.data)) return data.data;
+        if (data.hits && Array.isArray(data.hits.hits)) {
+          return data.hits.hits.map((h) => h._source || h);
+        }
+        return [];
+      }
+
+      function normalize(record) {
+        const bib = record.bibjson || {};
+        const subjects = Array.isArray(bib.subject) ? bib.subject : [];
+        const subjectTerms = subjects
+          .map((s) => (s && s.term) ? s.term : s)
+          .filter(Boolean);
+        const licenses = extractLicenses(bib, record);
+        const reviewProcesses = extractReviewProcess(bib);
+        const preservationServices = extractPreservationServices(bib);
+        const depositPolicyServices = extractDepositPolicyServices(bib);
+        const pidTypes = extractPidTypes(bib);
+        const languages = extractLanguages(bib);
+        const keywords = extractKeywords(bib);
+        const publicationWeeks = extractPublicationWeeks(bib, record);
+        let publisherRaw = "";
+        if (bib.publisher) {
+          if (typeof bib.publisher === "string") {
+            publisherRaw = bib.publisher;
+          } else {
+            publisherRaw = bib.publisher.name || bib.publisher.publisher || "";
+          }
+        }
+        if (!publisherRaw && record.publisher) {
+          if (typeof record.publisher === "string") {
+            publisherRaw = record.publisher;
+          } else {
+            publisherRaw = record.publisher.name || "";
+          }
+        }
+        const publisherNorm = normalizePublisherName(publisherRaw);
+        const issns = [];
+        if (bib.eissn) issns.push(bib.eissn);
+        if (bib.pissn) issns.push(bib.pissn);
+        if (Array.isArray(bib.issn)) issns.push(...bib.issn);
+        if (bib.issn && !Array.isArray(bib.issn)) issns.push(bib.issn);
+        const issnList = Array.from(new Set(
+          issns.map((val) => String(val || "").trim()).filter((val) => val)
+        ));
+
+        const doajId = record.id || record._id || "";
+        const doajUrl = doajId ? ("https://doaj.org/toc/" + doajId) : "";
+
+        return {
+          id: doajId,
+          doaj_url: doajUrl,
+          title: bib.title || record.title || "Untitled",
+          apc: (bib.apc && typeof bib.apc.has_apc === "boolean") ? bib.apc.has_apc : null,
+          subjects: subjectTerms,
+          licenses: licenses,
+          review_processes: reviewProcesses,
+          preservation_services: preservationServices,
+          deposit_policy_services: depositPolicyServices,
+          pid_types: pidTypes,
+          languages: languages,
+          keywords: keywords,
+          publication_weeks: publicationWeeks,
+          publisher: publisherNorm.display,
+          publisher_key: publisherNorm.key,
+          issn_list: issnList,
+          article_count: null,
+          article_count_status: "pending",
+          country: normalizeCountry(
+            (bib.publisher && bib.publisher.country) ||
+            (bib.institution && bib.institution.country) ||
+            "Unknown"
+          ),
+          last_updated: record.last_updated || record.lastUpdated || "",
+          created_date: record.created_date || record.createdDate || "",
+          last_manual_update: record.last_manual_update || record.lastManualUpdate || ""
+        };
+      }
+
+      function filterRecords(records) {
+        const yearsBack = parseInt(config.yearsBack, 10) || 2;
+        const subjectNeedle = String(config.subjectNeedle || "").trim().toLowerCase();
+        const dateField = config.dateField;
+        const cutoff = new Date();
+        cutoff.setFullYear(cutoff.getFullYear() - yearsBack);
+
+        return records.filter((r) => {
+          if (r.apc !== false) return false;
+
+          const dateStr = r[dateField] || r.last_updated || r.created_date || r.last_manual_update;
+          const d = dateStr ? new Date(dateStr) : null;
+          if (!d || isNaN(d.getTime()) || d < cutoff) return false;
+
+          if (!subjectNeedle) return true;
+          return r.subjects.some((s) => String(s).toLowerCase().includes(subjectNeedle));
+        });
+      }
+
+      function groupByCountry(records) {
+        const map = new Map();
+        records.forEach((r) => {
+          const key = r.country || "Unknown";
+          map.set(key, (map.get(key) || 0) + 1);
+        });
+        return Array.from(map.entries())
+          .map(([country, count]) => ({ country, count }))
+          .sort((a, b) => (b.count - a.count) || a.country.localeCompare(b.country));
+      }
+
+      function groupByPublisher(records) {
+        const map = new Map();
+        records.forEach((r) => {
+          const key = r.publisher_key || "not avaliable";
+          const label = r.publisher || "Not avaliable";
+          const existing = map.get(key);
+          if (!existing) {
+            map.set(key, { country: label, count: 1 });
+          } else {
+            existing.count += 1;
+            if (label.length > existing.country.length) {
+              existing.country = label;
+            }
+          }
+        });
+        return Array.from(map.values())
+          .sort((a, b) => (b.count - a.count) || a.country.localeCompare(b.country));
+      }
+
+      function groupByLicense(records) {
+        const map = new Map();
+        records.forEach((r) => {
+          (r.licenses || []).forEach((lic) => {
+            const key = String(lic || "").trim() || "Unknown";
+            map.set(key, (map.get(key) || 0) + 1);
+          });
+        });
+        return Array.from(map.entries())
+          .map(([country, count]) => ({ country, count }))
+          .sort((a, b) => (b.count - a.count) || a.country.localeCompare(b.country));
+      }
+
+      function groupByReviewProcess(records) {
+        const map = new Map();
+        records.forEach((r) => {
+          (r.review_processes || []).forEach((proc) => {
+            const key = String(proc || "").trim() || "Unknown";
+            map.set(key, (map.get(key) || 0) + 1);
+          });
+        });
+        return Array.from(map.entries())
+          .map(([country, count]) => ({ country, count }))
+          .sort((a, b) => (b.count - a.count) || a.country.localeCompare(b.country));
+      }
+
+      function groupByPreservation(records) {
+        const map = new Map();
+        records.forEach((r) => {
+          (r.preservation_services || []).forEach((svc) => {
+            const key = normalizeAvailability(svc);
+            map.set(key, (map.get(key) || 0) + 1);
+          });
+        });
+        return Array.from(map.entries())
+          .map(([country, count]) => ({ country, count }))
+          .sort((a, b) => (b.count - a.count) || a.country.localeCompare(b.country));
+      }
+
+      function groupByLanguage(records) {
+        const map = new Map();
+        records.forEach((r) => {
+          const langs = (r.languages && r.languages.length) ? r.languages : ["Not avaliable"];
+          langs.forEach((lang) => {
+            const key = normalizeAvailability(lang);
+            map.set(key, (map.get(key) || 0) + 1);
+          });
+        });
+        return Array.from(map.entries())
+          .map(([country, count]) => ({ country, count }))
+          .sort((a, b) => (b.count - a.count) || a.country.localeCompare(b.country));
+      }
+
+      function groupByKeywords(records) {
+        const map = new Map();
+        records.forEach((r) => {
+          (r.keywords || []).forEach((kw) => {
+            const key = normalizeKeyword(kw);
+            if (!key) return;
+            map.set(key, (map.get(key) || 0) + 1);
+          });
+        });
+        return Array.from(map.entries())
+          .map(([keyword, count]) => ({ keyword, count }))
+          .sort((a, b) => (b.count - a.count) || a.keyword.localeCompare(b.keyword));
+      }
+
+      function groupByDepositPolicy(records) {
+        const map = new Map();
+        records.forEach((r) => {
+          (r.deposit_policy_services || []).forEach((svc) => {
+            const key = normalizeAvailability(svc);
+            map.set(key, (map.get(key) || 0) + 1);
+          });
+        });
+        return Array.from(map.entries())
+          .map(([country, count]) => ({ country, count }))
+          .sort((a, b) => (b.count - a.count) || a.country.localeCompare(b.country));
+      }
+
+      function groupByPidTypes(records) {
+        const map = new Map();
+        records.forEach((r) => {
+          (r.pid_types || []).forEach((pid) => {
+            const key = normalizeAvailability(pid);
+            map.set(key, (map.get(key) || 0) + 1);
+          });
+        });
+        return Array.from(map.entries())
+          .map(([country, count]) => ({ country, count }))
+          .sort((a, b) => (b.count - a.count) || a.country.localeCompare(b.country));
+      }
+
+      function renderStats(records) {
+        $("statTotal").textContent = records.length;
+        const countries = groupByCountry(records);
+        $("statCountries").textContent = countries.length;
+        const languages = groupByLanguage(records);
+        const keywords = groupByKeywords(records);
+        const publishers = groupByPublisher(records);
+        const communityPublishers = publishers.filter((d) => classifyPublisherType(d.country) === "community");
+        const subjects = groupBySubject(records);
+        const licenses = groupByLicense(records);
+        const reviews = groupByReviewProcess(records);
+        const preservations = groupByPreservation(records);
+        const deposits = groupByDepositPolicy(records);
+        const pids = groupByPidTypes(records);
+
+        const dates = records
+          .map((r) => r.last_updated || r.created_date || r.last_manual_update)
+          .map((d) => new Date(d))
+          .filter((d) => !isNaN(d.getTime()))
+          .sort((a, b) => a - b);
+
+        if (dates.length) {
+          $("statRange").textContent = formatDate(dates[0]) + " to " + formatDate(dates[dates.length - 1]);
+        } else {
+          $("statRange").textContent = "-";
+        }
+
+        const weekValues = records
+          .map((r) => r.publication_weeks)
+          .filter((v) => Number.isFinite(v));
+        const avgWeeks = weekValues.length
+          ? (weekValues.reduce((sum, v) => sum + v, 0) / weekValues.length)
+          : null;
+        $("statAvgPubWeeks").textContent = avgWeeks == null ? "Not avaliable" : avgWeeks.toFixed(1);
+
+        state.countries = countries;
+        state.countryPage = 1;
+        state.summary = {
+          countries: countries,
+          languages: languages,
+          publishers: communityPublishers,
+          subjects: subjects,
+          licenses: licenses,
+          reviews: reviews,
+          preservations: preservations,
+          deposits: deposits,
+          pids: pids
+        };
+        const cutoff = new Date();
+        cutoff.setFullYear(cutoff.getFullYear() - (parseInt(config.yearsBack, 10) || 2));
+        state.summaryMeta = {
+          total: records.length,
+          countries: countries.length,
+          cutoff: formatDate(cutoff),
+          range: dates.length ? (formatDate(dates[0]) + " to " + formatDate(dates[dates.length - 1])) : "-",
+          avg_weeks: avgWeeks == null ? "Not avaliable" : avgWeeks.toFixed(1)
+        };
+        renderBars("countryChartSummary", countries, 10);
+        renderBars("publisherChartSummary", communityPublishers, 10);
+        renderBars("subjectChartSummary", subjects, 10);
+        renderBars("licenseChartSummary", licenses, 10);
+        renderBars("reviewChartSummary", reviews, 10);
+        renderBars("preservationChartSummary", preservations, 10);
+        renderBars("depositChartSummary", deposits, 10);
+        renderBars("pidChartSummary", pids, 10);
+        renderCountryTable(countries, records.length);
+        renderLanguageTable(languages, records.length);
+        renderKeywordCloud(keywords);
+      }
+
+      function renderBars(elementId, data, maxItems) {
+        const chart = $(elementId);
+        if (!chart) return;
+        chart.innerHTML = "";
+        const top = data.slice(0, maxItems);
+        const max = top.reduce((m, d) => Math.max(m, d.count), 0) || 1;
+
+        top.forEach((d) => {
+          const row = document.createElement("div");
+          row.className = "bar";
+
+          const name = document.createElement("div");
+          name.className = "name";
+          name.textContent = d.country;
+
+          const track = document.createElement("div");
+          track.className = "track";
+
+          const fill = document.createElement("div");
+          fill.className = "fill";
+          fill.style.width = (d.count / max * 100).toFixed(2) + "%";
+          const label = String(d.country || "").toLowerCase();
+          if (label === "not avaliable") {
+            fill.classList.add("na");
+          }
+
+          const count = document.createElement("div");
+          count.className = "count";
+          count.textContent = d.count;
+
+          track.appendChild(fill);
+          row.appendChild(name);
+          row.appendChild(track);
+          row.appendChild(count);
+
+          chart.appendChild(row);
+        });
+
+        if (!top.length) {
+          chart.textContent = "No data.";
+        }
+      }
+
+      function groupBySubject(records) {
+        const map = new Map();
+        records.forEach((r) => {
+          (r.subjects || []).forEach((s) => {
+            const key = String(s).trim();
+            if (!key) return;
+            map.set(key, (map.get(key) || 0) + 1);
+          });
+        });
+        return Array.from(map.entries())
+          .map(([subject, count]) => ({ country: subject, count }))
+          .sort((a, b) => (b.count - a.count) || a.country.localeCompare(b.country));
+      }
+
+      function renderCountryTable(countries, total) {
+        const tbody = $("countryTable");
+        tbody.innerHTML = "";
+
+        const totalRows = countries.length;
+        const pageSize = state.countryPageSize;
+        const totalPages = Math.max(1, Math.ceil(totalRows / pageSize));
+        const page = Math.min(state.countryPage, totalPages);
+        state.countryPage = page;
+        const start = (page - 1) * pageSize;
+        const end = start + pageSize;
+
+        countries.slice(start, end).forEach((d) => {
+          const tr = document.createElement("tr");
+          const share = total ? ((d.count / total) * 100).toFixed(1) + "%" : "0%";
+
+          const tdCountry = document.createElement("td");
+          tdCountry.textContent = d.country;
+
+          const tdCount = document.createElement("td");
+          tdCount.textContent = d.count;
+
+          const tdShare = document.createElement("td");
+          tdShare.textContent = share;
+
+          tr.appendChild(tdCountry);
+          tr.appendChild(tdCount);
+          tr.appendChild(tdShare);
+          tbody.appendChild(tr);
+        });
+
+        if (!countries.length) {
+          const tr = document.createElement("tr");
+          const td = document.createElement("td");
+          td.colSpan = 3;
+          td.className = "muted";
+          td.textContent = "No results.";
+          tr.appendChild(td);
+          tbody.appendChild(tr);
+        }
+
+        renderPagination(totalRows, pageSize, page, "countryPagination", (p) => {
+          state.countryPage = p;
+          renderCountryTable(countries, total);
+        });
+      }
+
+      function renderLanguageTable(languages, total) {
+        const tbody = $("languageTable");
+        if (!tbody) return;
+        tbody.innerHTML = "";
+
+        languages.forEach((d) => {
+          const tr = document.createElement("tr");
+          const share = total ? ((d.count / total) * 100).toFixed(1) + "%" : "0%";
+
+          const tdLanguage = document.createElement("td");
+          tdLanguage.textContent = d.country;
+
+          const tdCount = document.createElement("td");
+          tdCount.textContent = d.count;
+
+          const tdShare = document.createElement("td");
+          tdShare.textContent = share;
+
+          tr.appendChild(tdLanguage);
+          tr.appendChild(tdCount);
+          tr.appendChild(tdShare);
+          tbody.appendChild(tr);
+        });
+
+        if (!languages.length) {
+          const tr = document.createElement("tr");
+          const td = document.createElement("td");
+          td.colSpan = 3;
+          td.className = "muted";
+          td.textContent = "No results.";
+          tr.appendChild(td);
+          tbody.appendChild(tr);
+        }
+      }
+
+      function renderKeywordCloud(data) {
+        const container = $("keywordCloud");
+        if (!container) return;
+        container.innerHTML = "";
+        if (!data || !data.length) {
+          container.textContent = "No keywords available.";
+          container.classList.add("muted");
+          return;
+        }
+        container.classList.remove("muted");
+        const top = data.slice(0, 25);
+        const max = top.reduce((m, d) => Math.max(m, d.count), 0) || 1;
+        const minSize = 12;
+        const maxSize = 34;
+
+        const palette = [
+          "#1d4e89",
+          "#2a6f97",
+          "#2f9e88",
+          "#3a86ff",
+          "#7b2cbf",
+          "#bc6c25",
+          "#6c757d"
+        ];
+
+        top.forEach((d, idx) => {
+          const span = document.createElement("span");
+          const scale = d.count / max;
+          const size = minSize + (maxSize - minSize) * scale;
+          span.textContent = d.keyword;
+          span.style.fontSize = size.toFixed(1) + "px";
+          span.style.color = palette[idx % palette.length];
+          if (scale < 0.3) span.classList.add("dim");
+          span.title = d.keyword + " (" + d.count + ")";
+          container.appendChild(span);
+        });
+      }
+
+      function filterByCountry(records, query) {
+        const needle = String(query || "").trim().toLowerCase();
+        if (!needle) return records;
+        return records.filter((r) => r.country && r.country.toLowerCase().includes(needle));
+      }
+
+      function renderPagination(total, pageSize, current, containerId, onPage) {
+        const container = $("journalPagination");
+        const target = containerId ? $(containerId) : container;
+        if (!target) return;
+        target.innerHTML = "";
+        const totalPages = Math.max(1, Math.ceil(total / pageSize));
+        const meta = document.createElement("span");
+        meta.className = "meta";
+        meta.textContent = "Page " + current + " of " + totalPages;
+        target.appendChild(meta);
+
+        const makeButton = (label, page, disabled, active) => {
+          const btn = document.createElement("button");
+          btn.textContent = label;
+          if (active) btn.classList.add("active");
+          if (disabled) {
+            btn.disabled = true;
+            return btn;
+          }
+          btn.addEventListener("click", () => {
+            onPage(page);
+          });
+          return btn;
+        };
+
+        target.appendChild(makeButton("Prev", Math.max(1, current - 1), current === 1));
+
+        const windowSize = 5;
+        let start = Math.max(1, current - Math.floor(windowSize / 2));
+        let end = Math.min(totalPages, start + windowSize - 1);
+        if (end - start + 1 < windowSize) {
+          start = Math.max(1, end - windowSize + 1);
+        }
+
+        for (let p = start; p <= end; p++) {
+          target.appendChild(makeButton(String(p), p, false, p === current));
+        }
+
+        target.appendChild(makeButton("Next", Math.min(totalPages, current + 1), current === totalPages));
+      }
+
+      function renderJournalTable(records) {
+        const tbody = $("journalTable");
+        const filter = $("listFilter").value.trim().toLowerCase();
+        tbody.innerHTML = "";
+
+        const filtered = filterByCountry(records, filter);
+        const total = filtered.length;
+        const pageSize = state.pageSize;
+        const totalPages = Math.max(1, Math.ceil(total / pageSize));
+        const page = Math.min(state.page, totalPages);
+        state.page = page;
+        const start = (page - 1) * pageSize;
+        const end = start + pageSize;
+        const pageRows = filtered.slice(start, end);
+
+        $("listCount").textContent = total + " items";
+
+        pageRows.forEach((r) => {
+          const tr = document.createElement("tr");
+
+          const tdTitle = document.createElement("td");
+          if (r.doaj_url) {
+            const link = document.createElement("a");
+            link.href = r.doaj_url;
+            link.target = "_blank";
+            link.rel = "noopener";
+            link.textContent = r.title;
+            tdTitle.appendChild(link);
+          } else {
+            tdTitle.textContent = r.title;
+          }
+
+          const tdCountry = document.createElement("td");
+          tdCountry.textContent = r.country;
+
+          const tdSubjects = document.createElement("td");
+          tdSubjects.textContent = (r.subjects || []).join("; ");
+
+          const tdArticle = document.createElement("td");
+          if (typeof r.article_count === "number") {
+            tdArticle.textContent = r.article_count;
+            if (r.article_count === 0) {
+              tdArticle.classList.add("article-count", "zero");
+            }
+          } else if (r.article_count_status === "na") {
+            tdArticle.textContent = "Not avaliable";
+          } else {
+            tdArticle.textContent = "…";
+          }
+
+          const tdAdded = document.createElement("td");
+          const addedStr = r.created_date || "";
+          tdAdded.textContent = addedStr ? addedStr.slice(0, 10) : "-";
+
+          const tdDate = document.createElement("td");
+          const dateStr = r.last_updated || r.last_manual_update || r.created_date;
+          tdDate.textContent = dateStr ? dateStr.slice(0, 10) : "-";
+
+          tr.appendChild(tdTitle);
+          tr.appendChild(tdCountry);
+          tr.appendChild(tdSubjects);
+          tr.appendChild(tdArticle);
+          tr.appendChild(tdAdded);
+          tr.appendChild(tdDate);
+          tbody.appendChild(tr);
+        });
+
+        if (!pageRows.length) {
+          const tr = document.createElement("tr");
+          const td = document.createElement("td");
+          td.colSpan = 6;
+          td.className = "muted";
+          td.textContent = "No results.";
+          tr.appendChild(td);
+          tbody.appendChild(tr);
+        }
+
+        renderPagination(total, pageSize, page, "journalPagination", (p) => {
+          state.page = p;
+          renderJournalTable(state.filtered);
+        });
+      }
+
+      function updateFilterOptions(records) {
+        const datalist = $("listFilterOptions");
+        datalist.innerHTML = "";
+        const seen = new Set();
+
+        records.forEach((r) => {
+          if (r.country) seen.add(r.country);
+        });
+
+        Array.from(seen)
+          .sort((a, b) => a.localeCompare(b))
+          .forEach((val) => {
+            const option = document.createElement("option");
+            option.value = val;
+            datalist.appendChild(option);
+          });
+      }
+
+      async function fetchArticleCounts(records) {
+        if (!records.length) return;
+        const headers = buildHeaders();
+        const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
+        for (let i = 0; i < records.length; i++) {
+          if (!state.running) break;
+          const record = records[i];
+          if (record.article_count_status === "ok") continue;
+
+          const query = buildArticleQuery(record);
+          if (!query) {
+            record.article_count_status = "na";
+            continue;
+          }
+
+          try {
+            setStatus("Fetching article counts " + (i + 1) + "/" + records.length + "...");
+            const req = buildArticleRequest(query);
+            const resp = await fetch(req.url, {
+              method: req.method,
+              headers,
+              body: req.body,
+              signal: state.aborter ? state.aborter.signal : undefined
+            });
+            if (!resp.ok) throw new Error("HTTP " + resp.status);
+            const data = await resp.json();
+            const total = Number.isFinite(data.total) ? data.total :
+              (data.hits && data.hits.total ? data.hits.total : data.count);
+            record.article_count = Number.isFinite(total) ? total : 0;
+            record.article_count_status = "ok";
+          } catch (err) {
+            record.article_count_status = "na";
+          }
+
+          if ((i + 1) % 10 === 0) {
+            renderJournalTable(records);
+          }
+
+          await delay(80);
+        }
+
+        renderJournalTable(records);
+      }
+
+      function exportCSV(rows, filename) {
+        const lines = rows.map((r) => r.map((v) => {
+          const val = (v == null) ? "" : String(v);
+          const escaped = val.replace(/"/g, '""');
+          return '"' + escaped + '"';
+        }).join(","));
+        const blob = new Blob([lines.join("\n")], { type: "text/csv;charset=utf-8" });
+        const link = document.createElement("a");
+        link.href = URL.createObjectURL(blob);
+        link.download = filename;
+        link.click();
+      }
+
+      function exportChartCSV(filename, data) {
+        const rows = [["Label", "Count"]];
+        data.forEach((d) => rows.push([d.country, d.count]));
+        exportCSV(rows, filename);
+      }
+
+      function exportJournalsFull(records, filename) {
+        const rows = [[
+          "DOAJ_ID",
+          "Title",
+          "Country",
+          "Subjects",
+          "Licenses",
+          "ReviewProcesses",
+          "PreservationServices",
+          "DepositPolicyServices",
+          "PIDTypes",
+          "APC",
+          "CreatedDate",
+          "LastUpdated",
+          "LastManualUpdate",
+          "ArticleCount",
+          "DOAJ_URL",
+          "ISSN_List"
+        ]];
+        records.forEach((r) => {
+          rows.push([
+            r.id || "",
+            r.title || "",
+            r.country || "",
+            (r.subjects || []).join("; "),
+            (r.licenses || []).join("; "),
+            (r.review_processes || []).join("; "),
+            (r.preservation_services || []).join("; "),
+            (r.deposit_policy_services || []).join("; "),
+            (r.pid_types || []).join("; "),
+            r.apc === true ? "Yes" : (r.apc === false ? "No" : ""),
+            r.created_date || "",
+            r.last_updated || "",
+            r.last_manual_update || "",
+            r.article_count_status === "ok" ? r.article_count : "",
+            r.doaj_url || "",
+            (r.issn_list || []).join("; ")
+          ]);
+        });
+        exportCSV(rows, filename);
+      }
+
+      function updateExportButtonWidths() {
+        const buttons = document.querySelectorAll(".export-block .btns button");
+        if (!buttons.length) return;
+        buttons.forEach((btn) => {
+          btn.style.width = "auto";
+        });
+        let maxWidth = 0;
+        buttons.forEach((btn) => {
+          maxWidth = Math.max(maxWidth, btn.getBoundingClientRect().width);
+        });
+        buttons.forEach((btn) => {
+          btn.style.width = Math.ceil(maxWidth) + "px";
+        });
+      }
+
+      async function run() {
+        if (state.running) return;
+        state.running = true;
+        state.all = [];
+        state.filtered = [];
+
+        if (state.aborter) state.aborter.abort();
+        state.aborter = new AbortController();
+
+        const maxPages = parseInt(config.maxPages, 10) || 200;
+        let page = 1;
+        let nextUrl = null;
+
+        setStatus("Fetching...");
+        const start = new Date();
+
+        try {
+          for (let i = 0; i < maxPages; i++) {
+            const req = buildRequest(page, nextUrl);
+            const headers = buildHeaders();
+            if (config.auth.mode === "query") {
+              const apiKey = String(config.auth.apiKey || "").trim();
+              if (apiKey) {
+                const separator = req.url.includes("?") ? "&" : "?";
+                req.url += separator + "api_key=" + encodeURIComponent(apiKey);
+              }
+            }
+
+            setStatus("Fetching page " + page + "...");
+            const resp = await fetch(req.url, {
+              method: req.method,
+              headers,
+              body: req.body,
+              signal: state.aborter.signal
+            });
+
+            if (!resp.ok) {
+              throw new Error("HTTP " + resp.status + " - " + resp.statusText);
+            }
+
+            const data = await resp.json();
+            const results = extractResults(data);
+
+            if (!results.length) break;
+
+            state.all.push(...results.map(normalize));
+
+            if (data.next) {
+              nextUrl = data.next;
+              page += 1;
+            } else if (data.page && data.pageSize && data.total) {
+              if (data.page * data.pageSize >= data.total) break;
+              page += 1;
+            } else {
+              const pageSize = req.pageSize || results.length;
+              if (results.length < pageSize) break;
+              page += 1;
+            }
+
+            await new Promise((r) => setTimeout(r, 120));
+          }
+
+          state.filtered = filterRecords(state.all);
+          state.page = 1;
+          updateFilterOptions(state.filtered);
+          renderStats(filterByCountry(state.filtered, $("listFilter").value));
+          renderJournalTable(state.filtered);
+          await fetchArticleCounts(state.filtered);
+
+          const elapsed = ((new Date() - start) / 1000).toFixed(1);
+          setStatus("Done. Pages fetched: " + (page - 1) + ". Records: " + state.all.length + ". Article counts updated.");
+          setRunMeta("Run completed in " + elapsed + "s at " + new Date().toLocaleString());
+        } catch (err) {
+          setStatus("Error: " + err.message);
+        } finally {
+          state.running = false;
+        }
+      }
+
+      $("runBtn").addEventListener("click", run);
+      $("stopBtn").addEventListener("click", function() {
+        if (state.aborter) state.aborter.abort();
+        state.running = false;
+        setStatus("Stopped.");
+      });
+
+      $("listFilter").addEventListener("input", function() {
+        state.page = 1;
+        state.countryPage = 1;
+        const filtered = filterByCountry(state.filtered, $("listFilter").value);
+        renderStats(filtered);
+        renderJournalTable(state.filtered);
+      });
+
+      $("csvJournalsFull").addEventListener("click", function() {
+        const filtered = filterByCountry(state.filtered, $("listFilter").value);
+        exportJournalsFull(filtered, "doaj_diamond_engineering_journals_full.csv");
+      });
+
+      $("csvCountriesFull").addEventListener("click", function() {
+        const rows = [["Country", "Journals", "Share"]];
+        const total = state.summaryMeta.total || 0;
+        state.summary.countries.forEach((d) => {
+          const share = total ? ((d.count / total) * 100).toFixed(1) + "%" : "0%";
+          rows.push([d.country, d.count, share]);
+        });
+        exportCSV(rows, "doaj_diamond_engineering_countries_full.csv");
+      });
+
+      $("csvSubjects").addEventListener("click", function() {
+        exportChartCSV("doaj_diamond_engineering_subjects.csv", state.summary.subjects);
+      });
+
+      $("csvSummary").addEventListener("click", function() {
+        const rows = [[
+          "RunAt",
+          "TotalJournals",
+          "Countries",
+          "CutoffDate",
+          "LastUpdatedRange",
+          "AveragePublicationWeeks",
+          "FilterCountry"
+        ]];
+        const runAt = new Date().toISOString();
+        const filter = $("listFilter").value || "";
+        rows.push([
+          runAt,
+          state.summaryMeta.total,
+          state.summaryMeta.countries,
+          state.summaryMeta.cutoff,
+          state.summaryMeta.range,
+          state.summaryMeta.avg_weeks,
+          filter
+        ]);
+        exportCSV(rows, "doaj_diamond_engineering_summary.csv");
+      });
+
+      window.addEventListener("load", function() {
+        updateExportButtonWidths();
+        if (!state.running) run();
+      });
+
+      window.addEventListener("resize", function() {
+        updateExportButtonWidths();
+      });
+    })();
+  </script>
+</body>
+</html>
