@@ -275,6 +275,34 @@
       letter-spacing: 0.3px;
     }
 
+    .summary-map {
+      margin-top: 14px;
+      background: rgba(255, 255, 255, 0.95);
+      border: 1px solid rgba(255, 255, 255, 0.75);
+      border-radius: 12px;
+      padding: 12px;
+      color: #0b1f3a;
+    }
+
+    .summary-map h3 {
+      margin: 0 0 8px;
+      font-size: 14px;
+      color: #1b3160;
+      letter-spacing: 0.3px;
+    }
+
+    .summary-map .flourish-embed {
+      width: 100%;
+      min-height: 420px;
+    }
+
+    .summary-map iframe,
+    .summary-map img {
+      width: 100%;
+      border: 0;
+      display: block;
+    }
+
     .summary-title {
       display: flex;
       align-items: center;
@@ -694,6 +722,11 @@
         </div>
       </div>
 
+      <div class="summary-map">
+        <h3>Map of Diamond Open Access Journals in Engineering</h3>
+        <div class="flourish-embed flourish-map" data-src="visualisation/27489631"><script src="https://public.flourish.studio/resources/embed.js"></script><noscript><img src="https://public.flourish.studio/visualisation/27489631/thumbnail" width="100%" alt="map visualization" /></noscript></div>
+      </div>
+
       <div class="status pill-status" id="status">Idle</div>
       <div class="status" id="runMeta">No run yet.</div>
     </section>
@@ -811,7 +844,7 @@
         countryPage: 1,
         countryPageSize: 50,
         page: 1,
-        pageSize: 25
+        pageSize: 10
       };
 
       const statusEl = $("status");
