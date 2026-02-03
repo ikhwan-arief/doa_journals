@@ -1953,6 +1953,7 @@
             if (sjr) {
               matches.push({
                 doaj_title: r.title,
+                doaj_url: r.doaj_url || "",
                 sjr_title: sjr.title || "-",
                 issn: issns[i],
                 rank: sjr.rank || "-",
@@ -2011,7 +2012,16 @@
         pageRows.forEach((m) => {
           const tr = document.createElement("tr");
           const tdDoaj = document.createElement("td");
-          tdDoaj.textContent = m.doaj_title;
+          if (m.doaj_url) {
+            const link = document.createElement("a");
+            link.href = m.doaj_url;
+            link.target = "_blank";
+            link.rel = "noopener";
+            link.textContent = m.doaj_title;
+            tdDoaj.appendChild(link);
+          } else {
+            tdDoaj.textContent = m.doaj_title;
+          }
 
           const tdSjr = document.createElement("td");
           tdSjr.textContent = m.sjr_title;
