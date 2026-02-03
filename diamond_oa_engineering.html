@@ -710,6 +710,25 @@
           <div class="zero-note muted">Journals are required to upload article metadata within 1 month after the Added on date.</div>
         </div>
       </div>
+      <div class="chart-block" id="sjrBlock">
+        <div class="list-controls" style="margin-top: 10px;">
+          <h3 style="margin:0;">Diamond OA Engineering journals in SJR</h3>
+          <span class="pill" id="sjrCount">0 items</span>
+        </div>
+        <div class="table-scroll" id="sjrTableScroll" style="max-height: 320px;">
+          <table>
+            <thead>
+              <tr>
+                <th>DOAJ title</th>
+                <th>SJR title</th>
+                <th>ISSN match</th>
+                <th>SJR rank</th>
+              </tr>
+            </thead>
+            <tbody id="sjrTable"></tbody>
+          </table>
+        </div>
+      </div>
     </section>
   </main>
 
@@ -725,6 +744,12 @@
         all: [],
         filtered: [],
         countries: [],
+        sjr: {
+          loaded: false,
+          loading: false,
+          error: null,
+          byIssn: new Map()
+        },
         summary: {
           countries: [],
           languages: [],
@@ -760,6 +785,7 @@
         dateField: "last_updated",
         pageSize: 100,
         maxPages: 200,
+        sjrCsv: "scimagojr 2024 - diamond.csv",
         auth: {
           mode: "apikey",
           accessId: "ikhwan",
@@ -1762,6 +1788,170 @@
         subEl.textContent = pct + "% of filtered journals";
       }
 
+      function normalizeIssn(value) {
+        return String(value || "").toUpperCase().replace(/[^0-9X]/g, "");
+      }
+
+      function parseDelimited(text, delimiter) {
+        const rows = [];
+        let row = [];
+        let field = '';
+        let inQuotes = false;
+        for (let i = 0; i < text.length; i++) {
+          const ch = text[i];
+          if (ch === '"') {
+            if (inQuotes && text[i + 1] === '"') {
+              field += '"';
+              i += 1;
+            } else {
+              inQuotes = !inQuotes;
+            }
+          } else if (ch === delimiter && !inQuotes) {
+            row.push(field);
+            field = '';
+          } else if ((ch === '\n' || ch === '\r') && !inQuotes) {
+            if (field || row.length) {
+              row.push(field);
+              rows.push(row);
+              row = [];
+              field = '';
+            }
+            if (ch === '\r' && text[i + 1] === '\n') i += 1;
+          } else {
+            field += ch;
+          }
+        }
+        if (field || row.length) {
+          row.push(field);
+          rows.push(row);
+        }
+        return rows;
+      }
+
+      async function loadSjrData() {
+        if (state.sjr.loaded || state.sjr.loading) return;
+        state.sjr.loading = true;
+        state.sjr.error = null;
+        try {
+          const resp = await fetch(config.sjrCsv, { cache: "no-store" });
+          if (!resp.ok) throw new Error("HTTP " + resp.status);
+          const text = await resp.text();
+          const rows = parseDelimited(text, ";");
+          if (!rows.length) throw new Error("Empty SJR file");
+          const header = rows[0];
+          const idx = (name) => header.findIndex((h) => h.trim() === name);
+          const titleIdx = idx("Title");
+          const issnIdx = idx("Issn");
+          const rankIdx = idx("Rank");
+          if (titleIdx < 0 || issnIdx < 0) throw new Error("Missing Title/Issn columns");
+
+          const byIssn = new Map();
+          rows.slice(1).forEach((row) => {
+            const title = (row[titleIdx] || "").trim();
+            const rank = (row[rankIdx] || "").trim();
+            const issnRaw = (row[issnIdx] || "").split(",");
+            issnRaw.forEach((val) => {
+              const norm = normalizeIssn(val);
+              if (!norm) return;
+              if (!byIssn.has(norm)) {
+                byIssn.set(norm, { title, rank });
+              }
+            });
+          });
+
+          state.sjr.byIssn = byIssn;
+          state.sjr.loaded = true;
+        } catch (err) {
+          state.sjr.error = err.message || "Failed to load SJR file";
+        } finally {
+          state.sjr.loading = false;
+        }
+      }
+
+      function renderSjrMatches(records) {
+        const tbody = $("sjrTable");
+        const countEl = $("sjrCount");
+        if (!tbody || !countEl) return;
+        tbody.innerHTML = "";
+
+        if (state.sjr.error) {
+          const tr = document.createElement("tr");
+          const td = document.createElement("td");
+          td.colSpan = 4;
+          td.className = "muted";
+          td.textContent = "SJR file error: " + state.sjr.error;
+          tr.appendChild(td);
+          tbody.appendChild(tr);
+          countEl.textContent = "0 items";
+          return;
+        }
+
+        if (!state.sjr.loaded) {
+          const tr = document.createElement("tr");
+          const td = document.createElement("td");
+          td.colSpan = 4;
+          td.className = "muted";
+          td.textContent = "SJR file not loaded.";
+          tr.appendChild(td);
+          tbody.appendChild(tr);
+          countEl.textContent = "0 items";
+          return;
+        }
+
+        const matches = [];
+        records.forEach((r) => {
+          const issns = r.issn_list || [];
+          for (let i = 0; i < issns.length; i++) {
+            const norm = normalizeIssn(issns[i]);
+            if (!norm) continue;
+            const sjr = state.sjr.byIssn.get(norm);
+            if (sjr) {
+              matches.push({
+                doaj_title: r.title,
+                sjr_title: sjr.title || "-",
+                issn: issns[i],
+                rank: sjr.rank || "-"
+              });
+              break;
+            }
+          }
+        });
+
+        countEl.textContent = matches.length + " items";
+
+        if (!matches.length) {
+          const tr = document.createElement("tr");
+          const td = document.createElement("td");
+          td.colSpan = 4;
+          td.className = "muted";
+          td.textContent = "No matches found.";
+          tr.appendChild(td);
+          tbody.appendChild(tr);
+          return;
+        }
+
+        matches.forEach((m) => {
+          const tr = document.createElement("tr");
+          const tdDoaj = document.createElement("td");
+          tdDoaj.textContent = m.doaj_title;
+
+          const tdSjr = document.createElement("td");
+          tdSjr.textContent = m.sjr_title;
+
+          const tdIssn = document.createElement("td");
+          tdIssn.textContent = m.issn;
+
+          const tdRank = document.createElement("td");
+          tdRank.textContent = m.rank;
+
+          tr.appendChild(tdDoaj);
+          tr.appendChild(tdSjr);
+          tr.appendChild(tdIssn);
+          tr.appendChild(tdRank);
+          tbody.appendChild(tr);
+        });
+      }
+
 
       function groupBySubject(records) {
         const map = new Map();
@@ -1962,6 +2152,7 @@
         $("listCount").textContent = total + " items";
         renderJournalTimeline(filtered);
         renderZeroAfterAdded(filtered);
+        renderSjrMatches(filtered);
 
         pageRows.forEach((r) => {
           const tr = document.createElement("tr");
@@ -2198,6 +2389,7 @@
         const start = new Date();
 
         try {
+          await loadSjrData();
           for (let i = 0; i < maxPages; i++) {
             const req = buildRequest(page, nextUrl);
             const headers = buildHeaders();
