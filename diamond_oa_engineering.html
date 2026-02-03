@@ -723,6 +723,8 @@
                 <th>SJR title</th>
                 <th>ISSN match</th>
                 <th>SJR rank</th>
+                <th>SJR quartile</th>
+                <th>Country</th>
               </tr>
             </thead>
             <tbody id="sjrTable"></tbody>
@@ -1843,18 +1845,22 @@
           const titleIdx = idx("Title");
           const issnIdx = idx("Issn");
           const rankIdx = idx("Rank");
+          const quartileIdx = idx("SJR Best Quartile");
+          const countryIdx = idx("Country");
           if (titleIdx < 0 || issnIdx < 0) throw new Error("Missing Title/Issn columns");
 
           const byIssn = new Map();
           rows.slice(1).forEach((row) => {
             const title = (row[titleIdx] || "").trim();
             const rank = (row[rankIdx] || "").trim();
+            const quartile = quartileIdx >= 0 ? (row[quartileIdx] || "").trim() : "";
+            const country = countryIdx >= 0 ? (row[countryIdx] || "").trim() : "";
             const issnRaw = (row[issnIdx] || "").split(",");
             issnRaw.forEach((val) => {
               const norm = normalizeIssn(val);
               if (!norm) return;
               if (!byIssn.has(norm)) {
-                byIssn.set(norm, { title, rank });
+                byIssn.set(norm, { title, rank, quartile, country });
               }
             });
           });
@@ -1877,7 +1883,7 @@
         if (state.sjr.error) {
           const tr = document.createElement("tr");
           const td = document.createElement("td");
-          td.colSpan = 4;
+          td.colSpan = 6;
           td.className = "muted";
           td.textContent = "SJR file error: " + state.sjr.error;
           tr.appendChild(td);
@@ -1889,7 +1895,7 @@
         if (!state.sjr.loaded) {
           const tr = document.createElement("tr");
           const td = document.createElement("td");
-          td.colSpan = 4;
+          td.colSpan = 6;
           td.className = "muted";
           td.textContent = "SJR file not loaded.";
           tr.appendChild(td);
@@ -1910,7 +1916,9 @@
                 doaj_title: r.title,
                 sjr_title: sjr.title || "-",
                 issn: issns[i],
-                rank: sjr.rank || "-"
+                rank: sjr.rank || "-",
+                quartile: sjr.quartile || "-",
+                country: sjr.country || "-"
               });
               break;
             }
@@ -1922,7 +1930,7 @@
         if (!matches.length) {
           const tr = document.createElement("tr");
           const td = document.createElement("td");
-          td.colSpan = 4;
+          td.colSpan = 6;
           td.className = "muted";
           td.textContent = "No matches found.";
           tr.appendChild(td);
@@ -1944,10 +1952,18 @@
           const tdRank = document.createElement("td");
           tdRank.textContent = m.rank;
 
+          const tdQuartile = document.createElement("td");
+          tdQuartile.textContent = m.quartile;
+
+          const tdCountry = document.createElement("td");
+          tdCountry.textContent = m.country;
+
           tr.appendChild(tdDoaj);
           tr.appendChild(tdSjr);
           tr.appendChild(tdIssn);
           tr.appendChild(tdRank);
+          tr.appendChild(tdQuartile);
+          tr.appendChild(tdCountry);
           tbody.appendChild(tr);
         });
       }
