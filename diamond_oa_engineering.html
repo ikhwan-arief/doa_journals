@@ -40,47 +40,6 @@
       z-index: 0;
     }
 
-    .loading-overlay {
-      position: fixed;
-      inset: 0;
-      display: none;
-      align-items: center;
-      justify-content: center;
-      background: rgba(15, 23, 42, 0.28);
-      z-index: 10;
-      backdrop-filter: blur(2px);
-    }
-
-    .loading-overlay.active {
-      display: flex;
-    }
-
-    .loading-card {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      padding: 14px 18px;
-      border-radius: 14px;
-      background: #ffffff;
-      border: 1px solid var(--stroke);
-      box-shadow: var(--shadow);
-      color: var(--accent-2);
-      font-weight: 600;
-    }
-
-    .spinner {
-      width: 18px;
-      height: 18px;
-      border-radius: 50%;
-      border: 3px solid #dbe5ff;
-      border-top-color: var(--accent);
-      animation: spin 0.9s linear infinite;
-    }
-
-    @keyframes spin {
-      to { transform: rotate(360deg); }
-    }
-
     header {
       position: relative;
       z-index: 1;
@@ -247,6 +206,24 @@
       margin-top: 12px;
       font-size: 13px;
       color: var(--muted);
+    }
+
+    .status.pill-status {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--stroke);
+      background: #fff4e5;
+      color: #b45309;
+      font-weight: 600;
+    }
+
+    .status.pill-status.loading {
+      background: #fee2e2;
+      border-color: #fecaca;
+      color: #b91c1c;
     }
 
     .stat-grid {
@@ -545,12 +522,6 @@
 </head>
 <body>
   <div class="backdrop"></div>
-  <div class="loading-overlay" id="loadingOverlay" aria-hidden="true">
-    <div class="loading-card">
-      <div class="spinner" aria-hidden="true"></div>
-      <div class="loading-text">Loading DOAJ data…</div>
-    </div>
-  </div>
   <header>
     <h1>Diamond OA Engineering Journals in DOAJ</h1>
     <p>Dashboard report: No APC, last 2 years, engineering subject.</p>
@@ -698,7 +669,7 @@
         </div>
       </div>
 
-      <div class="status" id="status">Idle</div>
+      <div class="status pill-status" id="status">Idle</div>
       <div class="status" id="runMeta">No run yet.</div>
     </section>
 
@@ -1002,15 +973,11 @@
         runMetaEl.textContent = msg;
       }
 
-      function setLoading(active) {
-        const overlay = $("loadingOverlay");
-        if (!overlay) return;
+      function setStatusLoading(active) {
         if (active) {
-          overlay.classList.add("active");
-          overlay.setAttribute("aria-hidden", "false");
+          statusEl.classList.add("pill-status", "loading");
         } else {
-          overlay.classList.remove("active");
-          overlay.setAttribute("aria-hidden", "true");
+          statusEl.classList.remove("loading");
         }
       }
 
@@ -2226,8 +2193,8 @@
         let page = 1;
         let nextUrl = null;
 
-        setStatus("Fetching...");
-        setLoading(true);
+        setStatus("Loading data...");
+        setStatusLoading(true);
         const start = new Date();
 
         try {
@@ -2290,7 +2257,7 @@
           setStatus("Error: " + err.message);
         } finally {
           state.running = false;
-          setLoading(false);
+          setStatusLoading(false);
         }
       }
 
@@ -2299,7 +2266,7 @@
         if (state.aborter) state.aborter.abort();
         state.running = false;
         setStatus("Stopped.");
-        setLoading(false);
+        setStatusLoading(false);
       });
 
       $("listFilter").addEventListener("input", function() {
