@@ -40,6 +40,47 @@
       z-index: 0;
     }
 
+    .loading-overlay {
+      position: fixed;
+      inset: 0;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      background: rgba(15, 23, 42, 0.28);
+      z-index: 10;
+      backdrop-filter: blur(2px);
+    }
+
+    .loading-overlay.active {
+      display: flex;
+    }
+
+    .loading-card {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 14px 18px;
+      border-radius: 14px;
+      background: #ffffff;
+      border: 1px solid var(--stroke);
+      box-shadow: var(--shadow);
+      color: var(--accent-2);
+      font-weight: 600;
+    }
+
+    .spinner {
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      border: 3px solid #dbe5ff;
+      border-top-color: var(--accent);
+      animation: spin 0.9s linear infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
     header {
       position: relative;
       z-index: 1;
@@ -504,6 +545,12 @@
 </head>
 <body>
   <div class="backdrop"></div>
+  <div class="loading-overlay" id="loadingOverlay" aria-hidden="true">
+    <div class="loading-card">
+      <div class="spinner" aria-hidden="true"></div>
+      <div class="loading-text">Loading DOAJ data…</div>
+    </div>
+  </div>
   <header>
     <h1>Diamond OA Engineering Journals in DOAJ</h1>
     <p>Dashboard report: No APC, last 2 years, engineering subject.</p>
@@ -953,6 +1000,18 @@
 
       function setRunMeta(msg) {
         runMetaEl.textContent = msg;
+      }
+
+      function setLoading(active) {
+        const overlay = $("loadingOverlay");
+        if (!overlay) return;
+        if (active) {
+          overlay.classList.add("active");
+          overlay.setAttribute("aria-hidden", "false");
+        } else {
+          overlay.classList.remove("active");
+          overlay.setAttribute("aria-hidden", "true");
+        }
       }
 
       function formatDate(d) {
@@ -2168,6 +2227,7 @@
         let nextUrl = null;
 
         setStatus("Fetching...");
+        setLoading(true);
         const start = new Date();
 
         try {
@@ -2230,6 +2290,7 @@
           setStatus("Error: " + err.message);
         } finally {
           state.running = false;
+          setLoading(false);
         }
       }
 
@@ -2238,6 +2299,7 @@
         if (state.aborter) state.aborter.abort();
         state.running = false;
         setStatus("Stopped.");
+        setLoading(false);
       });
 
       $("listFilter").addEventListener("input", function() {
