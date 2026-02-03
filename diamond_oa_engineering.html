@@ -395,6 +395,31 @@
       gap: 10px;
       align-items: center;
     }
+    .sjr-controls {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      margin-left: auto;
+    }
+
+    .sjr-controls select {
+      width: auto;
+      min-width: 160px;
+      margin-top: 0;
+    }
+
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
+
 
     .table-scroll {
       max-height: 340px;
@@ -714,6 +739,15 @@
         <div class="list-controls" style="margin-top: 10px;">
           <h3 style="margin:0;">Diamond OA Engineering journals in SJR</h3>
           <span class="pill" id="sjrCount">0 items</span>
+          <div class="sjr-controls">
+            <label for="sjrSort" class="sr-only">Sort SJR</label>
+            <select id="sjrSort">
+              <option value="rank">SJR Rank</option>
+              <option value="quartile">SJR Best Quartile</option>
+              <option value="country">Country</option>
+            </select>
+            <button id="sjrSortDir" class="secondary" type="button">Asc</button>
+          </div>
         </div>
         <div class="table-scroll" id="sjrTableScroll" style="max-height: 320px;">
           <table>
@@ -730,6 +764,7 @@
             <tbody id="sjrTable"></tbody>
           </table>
         </div>
+        <div class="pagination" id="sjrPagination"></div>
       </div>
     </section>
   </main>
@@ -750,7 +785,11 @@
           loaded: false,
           loading: false,
           error: null,
-          byIssn: new Map()
+          byIssn: new Map(),
+          page: 1,
+          pageSize: 25,
+          sortKey: "rank",
+          sortDir: "asc"
         },
         summary: {
           countries: [],
@@ -1927,6 +1966,37 @@
 
         countEl.textContent = matches.length + " items";
 
+        const sortKey = state.sjr.sortKey;
+        const sortDir = state.sjr.sortDir;
+        const dir = sortDir === "desc" ? -1 : 1;
+        const rankValue = (val) => {
+          const num = Number(String(val || "").replace(/[^0-9.]/g, ""));
+          return Number.isFinite(num) ? num : null;
+        };
+        matches.sort((a, b) => {
+          if (sortKey === "rank") {
+            const av = rankValue(a.rank);
+            const bv = rankValue(b.rank);
+            if (av == null && bv == null) return 0;
+            if (av == null) return 1;
+            if (bv == null) return -1;
+            return (av - bv) * dir;
+          }
+          const av = String(a[sortKey] || "").toLowerCase();
+          const bv = String(b[sortKey] || "").toLowerCase();
+          if (av < bv) return -1 * dir;
+          if (av > bv) return 1 * dir;
+          return 0;
+        });
+
+        const pageSize = state.sjr.pageSize;
+        const totalPages = Math.max(1, Math.ceil(matches.length / pageSize));
+        const page = Math.min(state.sjr.page, totalPages);
+        state.sjr.page = page;
+        const start = (page - 1) * pageSize;
+        const end = start + pageSize;
+        const pageRows = matches.slice(start, end);
+
         if (!matches.length) {
           const tr = document.createElement("tr");
           const td = document.createElement("td");
@@ -1938,7 +2008,7 @@
           return;
         }
 
-        matches.forEach((m) => {
+        pageRows.forEach((m) => {
           const tr = document.createElement("tr");
           const tdDoaj = document.createElement("td");
           tdDoaj.textContent = m.doaj_title;
@@ -1965,6 +2035,11 @@
           tr.appendChild(tdQuartile);
           tr.appendChild(tdCountry);
           tbody.appendChild(tr);
+        });
+
+        renderPagination(matches.length, pageSize, page, "sjrPagination", (p) => {
+          state.sjr.page = p;
+          renderSjrMatches(records);
         });
       }
 
@@ -2485,6 +2560,21 @@
         renderJournalTable(state.filtered);
       });
 
+      $("sjrSort").addEventListener("change", function() {
+        state.sjr.sortKey = this.value;
+        state.sjr.page = 1;
+        const filtered = filterByCountry(state.filtered, $("listFilter").value);
+        renderSjrMatches(filtered);
+      });
+
+      $("sjrSortDir").addEventListener("click", function() {
+        state.sjr.sortDir = state.sjr.sortDir === "asc" ? "desc" : "asc";
+        this.textContent = state.sjr.sortDir === "asc" ? "Asc" : "Desc";
+        state.sjr.page = 1;
+        const filtered = filterByCountry(state.filtered, $("listFilter").value);
+        renderSjrMatches(filtered);
+      });
+
       $("csvJournalsFull").addEventListener("click", function() {
         const filtered = filterByCountry(state.filtered, $("listFilter").value);
         exportJournalsFull(filtered, "doaj_diamond_engineering_journals_full.csv");
@@ -2530,6 +2620,8 @@
 
       window.addEventListener("load", function() {
         updateExportButtonWidths();
+        const dirBtn = $("sjrSortDir");
+        if (dirBtn) dirBtn.textContent = state.sjr.sortDir === "asc" ? "Asc" : "Desc";
         if (!state.running) run();
       });
 
