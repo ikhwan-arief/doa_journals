@@ -1143,6 +1143,13 @@
         if (!text || text.toLowerCase() === "unknown") return "Not avaliable";
         return text;
       }
+
+      function normalizePreservationServiceName(value) {
+        const text = normalizeAvailability(value);
+        if (text === "Not avaliable") return text;
+        if (/^russian state library\s*\(rsl\)$/i.test(text)) return "Russian State Library";
+        return text;
+      }
       function normalizeLanguageValue(value) {
         const raw = String(value || "").trim();
         if (!raw) return "Not avaliable";
@@ -1319,7 +1326,7 @@
         const libraries = Array.isArray(rawLibraries) ? rawLibraries : [rawLibraries];
         const values = services
           .concat(libraries)
-          .map((item) => normalizeAvailability(item))
+          .map((item) => normalizePreservationServiceName(item))
           .filter((val) => val);
         return values.length ? Array.from(new Set(values)) : ["Not avaliable"];
       }
